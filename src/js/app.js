@@ -10,7 +10,8 @@ const dataURL = '<%= path %>/assets/EDITED Chief Executives MASTER final scores 
 const dropDownMenu = d3.select('.dropdown .dropdown-content')
 const firstYear = 1998;
 const lastYear = 2018;
-const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela']
+const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela'];
+const categories = ['NA', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
 
 const mapEl = $(".interactive-wrapper");
 
@@ -19,7 +20,7 @@ let height = 300;
 
 let center = {x: 0, y:0}
 
-let currentYear = 1998
+let currentYear = firstYear;
 
 let populistCenters = {
 null:{x:1000, y: 1000},
@@ -29,10 +30,6 @@ null:{x:1000, y: 1000},
 'Populist':{x:width / 4, y:center.y},
 'Very Populist':{x:((width / 4) * 2) -30, y:center.y}
 }
-
-console.log(populistCenters)
-
-let sortTimeout;
 
 let forceStrength = 0.02;
 
@@ -54,6 +51,13 @@ svg = d3.select(".interactive-svg")
 .append('svg')
 .attr("width", width)
 .attr("height", height)
+
+categories.map(c =>{
+	svg.append('text')
+	.text(c)
+	.attr('transform', 'translate(' + (populistCenters[c].x - 10 + width / 2) + ',200)')
+	
+})
 
 Promise.all([
 	d3.csv(dataURL)
