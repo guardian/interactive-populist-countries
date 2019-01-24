@@ -23,7 +23,7 @@ let center = {x: 0, y:0}
 let currentYear = firstYear;
 
 let populistCenters = {
-null:{x:1000, y: 1000},
+null:{x:center.x, y: -200},
 'NA':{x:-(width / 2) + 30, y:center.y},
 'Not populist':{x:-(width / 4), y:center.y},
 'Somewhat populist':{x:0, y:center.y},
@@ -129,7 +129,8 @@ function ready(csv){
 	.attr('r', d => d.radius)
 
 
-	simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPos))
+	simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
+	simulation.force('y', d3.forceY().strength(forceStrength).y(nodePopulismPosY))
 
 	simulation.alpha(1).restart();
 
@@ -137,16 +138,23 @@ function ready(csv){
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
 		d3.select("h3").html(currentYear)
-		simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPos))
+		simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
+		simulation.force('y', d3.forceY().strength(forceStrength).y(nodePopulismPosY))
 		simulation.alpha(1).restart();
 	}, 2000);
 
 }
 
-function nodePopulismPos(d) {
-console.log(d['populist' + currentYear])
+function nodePopulismPosX(d) {
+
 d3.select('.' + d.country).attr('class', d.country + ' ' + d['populist' + currentYear])
   return populistCenters[d['populist' + currentYear]].x;
+}
+
+function nodePopulismPosY(d) {
+
+d3.select('.' + d.country).attr('class', d.country + ' ' + d['populist' + currentYear])
+  return populistCenters[d['populist' + currentYear]].y;
 }
 
 function ticked() {
