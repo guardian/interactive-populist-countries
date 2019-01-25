@@ -3,6 +3,7 @@ import * as d3Select from 'd3-selection'
 import {event as currentEvent} from 'd3-selection';
 import * as d3Queue from 'd3-queue'
 import { $ } from "./util"
+import * as d3Beeswarm from 'd3-beeswarm'
 
 let d3 = Object.assign({}, d3B, d3Select, d3Queue);
 const mapEl = $(".interactive-wrapper");
@@ -41,12 +42,14 @@ let center = {x: 0, y:0}
 let forceStrength = 0.02;
 
 let simulation = d3.forceSimulation()
-.velocityDecay(0.2)
+.velocityDecay(0.5)
 .force('x', d3.forceX().strength(forceStrength).x(center.x))
 .force('y', d3.forceY().strength(forceStrength).y(center.y))
 .force('charge', d3.forceManyBody().strength(charge))
 .force("collide", d3.forceCollide().radius(d => d.radius))
 .on('tick', beesTicked);
+
+simulation.stop();
 
 Promise.all([
 	d3.csv(dataURL)
@@ -114,17 +117,24 @@ function ready(csv){
 
 	simulation.nodes(nodes)
 
+	simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
+	simulation.force('y', d3.forceX().strength(0.2).x(nodePopulismPosX))
+	simulation.alpha(1).restart();
+
 	bees = svg.selectAll('circle')
 	.data(nodes)
 	.enter()
 	.append('circle')
-	.attr('class', d => d.region)
+	.attr('class', d => d.region + ' ' + d.country)
 	.attr('r', d => d.radius)
+
+
 
 	setInterval(d => {
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
 		simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
+		simulation.force('y', d3.forceX().strength(0.2).x(nodePopulismPosX))
 		d3.select(".unique-title").html(currentYear)
 		simulation.alpha(1).restart();
 	}, 2000);
@@ -133,9 +143,12 @@ function ready(csv){
 }
 
 function nodePopulismPosX(d) {
-  return (width * d['populist'+currentYear] / 2)
+  return ((width -20) * d['populist'+currentYear] / 2)
 }
 
+function nodePopulismPosY(d) {
+  return height /2
+}
 
 function beesTicked() {
   bees

@@ -122,7 +122,7 @@ function ready(csv){
 	.data(nodes)
 	.enter()
 	.append('circle')
-	.attr('class', d => d.country + ' ' + d['populist' + currentYear] )
+	.attr('class', d => 'c' + d.country + ' ' + d['populist' + currentYear] )
 	.attr('r', d => d.radius)
 
 
@@ -143,12 +143,12 @@ function ready(csv){
 }
 
 function nodePopulismPosX(d) {
-	d3.select('.' + d.country).attr('class', d.country + ' ' + d['populist' + currentYear])
+	d3.select('.c' + d.country).attr('class', 'c' + d.country + ' ' + d['populist' + currentYear])
   return populistCenters[d['populist' + currentYear]].x;
 }
 
 function nodePopulismPosY(d) {
-	d3.select('.' + d.country).attr('class', d.country + ' ' + d['populist' + currentYear])
+	d3.select('.c' + d.country).attr('class', 'c' + d.country + ' ' + d['populist' + currentYear])
   return populistCenters[d['populist' + currentYear]].y;
 }
 
