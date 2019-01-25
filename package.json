@@ -53,6 +53,7 @@
   "dependencies": {
     "core-js": "^2.6.2",
     "d3": "^5.7.0",
+    "d3-beeswarm": "0.0.5",
     "d3-queue": "^3.0.7",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.6.1",
