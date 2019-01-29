@@ -31,6 +31,7 @@ let points = [
 ]
 
 let bees;
+let annotations;
 let pathData = lineGenerator(points);
 
 let axis = svg.append('path')
@@ -129,6 +130,13 @@ function ready(csv){
 	.attr('r', d => d.radius)
 
 
+	annotations = svg.selectAll('text')
+	.data(nodes)
+	.enter()
+	.append('text')
+	.text(d=>d.country)
+
+
 
 	setInterval(d => {
 		currentYear++
@@ -154,8 +162,11 @@ function beesTicked() {
   bees
   .attr('cx', d => d.x + 50)
   .attr('cy', d => d.y + height /2)
-}
 
+  annotations
+  .attr('x', d => d.x)
+  .attr('y', d => d.y + height /2)
+}
 
 
 function charge(d) {

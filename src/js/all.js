@@ -6,11 +6,11 @@ import { $ } from "./util"
 
 let d3 = Object.assign({}, d3B, d3Select, d3Queue);
 
-const dataURL = '<%= path %>/assets/EDITED Chief Executives MASTER final scores - ALL_VISUALS_EDITED_UNIQUE.csv';
+const dataURL = '<%= path %>/assets/Copy of EDITED Chief Executives MASTER final scores - ALL_VISUALS_EDITED_UNIQUE.csv';
 const firstYear = 1998;
 const lastYear = 2018;
 const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela'];
-const categories = ['NA', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
+const categories = ['Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
 
 const mapEl = $(".interactive-wrapper");
 
@@ -24,6 +24,7 @@ let currentYear = firstYear;
 let populistCenters = {
 null:{x:center.x, y: -200},
 'NA':{x:-(width / 2) + 30, y:center.y},
+'Zero':{x:-(width / 2) + 30, y:center.y},
 'Not populist':{x:-(width / 4), y:center.y},
 'Somewhat populist':{x:0, y:center.y},
 'Populist':{x:width / 4, y:center.y},
@@ -54,8 +55,7 @@ svg = d3.select(".all-svg")
 categories.map(c =>{
 	svg.append('text')
 	.text(c)
-	.attr('transform', 'translate(' + (populistCenters[c].x - 10 + width / 2) + ',200)')
-	
+	.attr('transform', 'translate(' + ((populistCenters[c].x + width / 2) - 20) + ',200)')
 })
 
 Promise.all([
@@ -102,6 +102,7 @@ function ready(csv){
 		let country = data.filter(d => d.country == c)
 		let years = country.map(c => +c.yearbegin)
 		let populism = country.map(c => c.speech_category)
+		console.log(populism)
 		let localPopulism = speechCategory;
 
 		for (var i = firstYear; i <= lastYear; i++) {
