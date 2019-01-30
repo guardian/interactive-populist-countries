@@ -115,7 +115,8 @@ function ready(csv){
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
 		
-		simulation.force("r", d3.forceRadial(function(d) { return (5 - categories.indexOf(d['populist' + currentYear])) * 50 }))
+		simulation.force("r", d3.forceRadial(d => (categories.length - categories.indexOf(d['populist' + currentYear])) * 50 ))
+		.force("collide", d3.forceCollide().radius(6))
 		
 		d3.select(".center-title").html(currentYear)
 		simulation.alpha(1).restart();
@@ -128,7 +129,7 @@ function ready(csv){
 
 function ticked() {
   bubble
-  	.attr('class', d => d['populist' + currentYear] )
+  	.attr('class', d => d.country + ' ' +d['populist' + currentYear] )
       .attr("cx", function(d) { return d.x + width /2; })
       .attr("cy", function(d) { return d.y + height /2; });
 }
