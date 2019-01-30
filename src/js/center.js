@@ -26,13 +26,16 @@ let svg = d3.select(".center-svg")
 .attr('width', width)
 .attr('height', height)
 
-let centers = [
-{category:'Zero', radius:height/6},
-{category:'Not populist', radius:height/5},
-{category:'Somewhat populist', radius:height/4},
-{category:'Populist', radius:height/3},
-{category:'Very Populist', radius:height/2}
-]
+svg
+.selectAll('circle')
+.data(categories)
+.enter()
+.append('circle')
+.attr('cx', width /2)
+.attr('cy', height /2)
+.attr('r', (d,i) => i * 50)
+.style('fill', 'none')
+.style('stroke', '#dcdcdc')
 
 var simulation = d3.forceSimulation()
     .force("charge", d3.forceCollide().radius(5))
@@ -115,7 +118,7 @@ function ready(csv){
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
 		
-		simulation.force("r", d3.forceRadial(d => (categories.length - categories.indexOf(d['populist' + currentYear])) * 50 ))
+		simulation.force("r", d3.forceRadial(d => (categories.length-1 - categories.indexOf(d['populist' + currentYear])) * 50 ))
 		.force("collide", d3.forceCollide().radius(6))
 		
 		d3.select(".center-title").html(currentYear)
