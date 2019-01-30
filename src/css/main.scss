@@ -22,7 +22,7 @@
     }
 }
 
-.null{fill:lightgrey; opacity: 0;}
+.null{fill:lightgrey;}
 .Zero{fill:red}
 .NA{fill:red}
 .Not.populist{fill:orange}
@@ -44,3 +44,11 @@ h3{
 .Central.and.Eastern.Europe{fill:lightgrey;}
 .North.America{fill:blue;}
 .South.Asia{fill:orange;}
+
+.textnull{display:none;}
+.textZero{display:none;}
+.textNA{display:none;}
+.textNot.populist{display:none;}
+.textSomewhat.populist{fill:grey;}
+.textPopulist{fill:black;}
+.textVery.Populist{fill:red;}

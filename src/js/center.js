@@ -11,15 +11,16 @@ const firstYear = 1998;
 const lastYear = 2018;
 let currentYear = 1998;
 const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela'];
-const categories = [null, 'NA','Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
+const categories = ['null', 'NA','Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
 
 const mapEl = $(".interactive-wrapper");
 
 let width = mapEl.getBoundingClientRect().width;
-let height = 600;
+let height = 900;
 
 let nodes = [];
-let bubble;
+let circle = null;
+let annotations = null;
 
 let svg = d3.select(".center-svg")
 .append('svg')
@@ -100,23 +101,41 @@ function ready(csv){
 		nodes.push(node)
 	})
 
-	
+	console.log(nodes)
 
-    simulation
-    .nodes(nodes)
-    .force("r", d3.forceRadial(function(d) { return (5 - categories.indexOf(d['populist' + currentYear])) * 50 }))
-    .restart();
+	annotations = svg.selectAll('text')
+		.data(nodes)
+		.enter()
+		.append('text')
+		.attr('class', d => {return'text' + d['populist' + currentYear] })
+		.text(d=> {return d.country})
 
-    bubble = svg.selectAll('circle')
+
+
+
+
+    circle = svg.selectAll('rect')
 	.data(nodes)
 	.enter()
-	.append('circle')
+	.append('rect')
+	.attr('width', 8)
+	.attr('height', 8)
+	/*.attr('cx', 0)
+	.attr('cy', 0)*/
 	.attr('class', d => d['populist' + currentYear] )
-	.attr('r', d => d.radius)
+	//.attr('d', d => {console.log(d.country, d.radius); return d.radius})
+
+	
+ simulation
+    .nodes(nodes)
+    .force("r", d3.forceRadial(function(d) { return (categories.length-1 - categories.indexOf(d['populist' + currentYear])) * 50 }))
+    .restart();
 
 	setInterval(d => {
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
+
+		
 		
 		simulation.force("r", d3.forceRadial(d => (categories.length-1 - categories.indexOf(d['populist' + currentYear])) * 50 ))
 		.force("collide", d3.forceCollide().radius(6))
@@ -131,8 +150,13 @@ function ready(csv){
 
 
 function ticked() {
-  bubble
-  	.attr('class', d => d.country + ' ' +d['populist' + currentYear] )
-      .attr("cx", function(d) { return d.x + width /2; })
-      .attr("cy", function(d) { return d.y + height /2; });
+  circle
+  .attr('class', d => d.country + ' ' +d['populist' + currentYear] )
+  .attr("x", function(d) { return d.x + width /2; })
+  .attr("y", function(d) { return d.y + height /2; });
+
+  annotations
+  .attr('class', d => {return'text' + d['populist' + currentYear] })
+  .attr('x', d => d.x + width/2)
+  .attr('y', d => d.y + height /2)
 }
