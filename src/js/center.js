@@ -107,7 +107,7 @@ function ready(csv){
 		.data(nodes)
 		.enter()
 		.append('text')
-		.attr('class', d => {return'text' + d['populist' + currentYear] })
+		.attr('class', d => {return "place-label " + 'text' + d['populist' + currentYear] })
 		.text(d=> {return d.country})
 
 
