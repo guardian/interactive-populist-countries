@@ -9,54 +9,36 @@ let d3 = Object.assign({}, d3B, d3Select, d3Queue);
 const dataURL = '<%= path %>/assets/Copy of EDITED Chief Executives MASTER final scores - ALL_VISUALS_EDITED_UNIQUE.csv';
 const firstYear = 1998;
 const lastYear = 2018;
+let currentYear = 1998;
 const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela'];
-const categories = ['Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
+const categories = [null, 'NA','Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
 
 const mapEl = $(".interactive-wrapper");
 
 let width = mapEl.getBoundingClientRect().width;
-let height = 300;
+let height = 600;
 
-let center = {x: 0, y:0}
-
-let currentYear = firstYear;
-
-let populistCenters = {
-null:{x:center.x, y: -200},
-'NA':{x:-(width / 2) + 30, y:center.y},
-'Zero':{x:-(width / 2) + 30, y:center.y},
-'Not populist':{x:-(width / 4), y:center.y},
-'Somewhat populist':{x:0, y:center.y},
-'Populist':{x:width / 4, y:center.y},
-'Very Populist':{x:((width / 4) * 2) -30, y:center.y}
-}
-
-let forceStrength = 0.02;
-
-let svg = null;
-let bubbles = null;
 let nodes = [];
+let bubble;
 
-let simulation = d3.forceSimulation()
-.velocityDecay(0.2)
-.force('x', d3.forceX().strength(forceStrength).x(center.x))
-.force('y', d3.forceY().strength(forceStrength).y(center.y))
-.force('charge', d3.forceManyBody().strength(charge))
-.force("collide", d3.forceCollide().radius(d => d.radius))
-.on('tick', ticked);
-
-simulation.stop();
-
-svg = d3.select(".all-svg")
+let svg = d3.select(".center-svg")
 .append('svg')
-.attr("width", width)
-.attr("height", height)
+.attr('width', width)
+.attr('height', height)
 
-categories.map(c =>{
-	svg.append('text')
-	.text(c)
-	.attr('transform', 'translate(' + ((populistCenters[c].x + width / 2) - 20) + ',200)')
-})
+let centers = [
+{category:'Zero', radius:height/6},
+{category:'Not populist', radius:height/5},
+{category:'Somewhat populist', radius:height/4},
+{category:'Populist', radius:height/3},
+{category:'Very Populist', radius:height/2}
+]
+
+var simulation = d3.forceSimulation()
+    .force("charge", d3.forceCollide().radius(5))
+    .on("tick", ticked);
+
+simulation.stop()
 
 Promise.all([
 	d3.csv(dataURL)
@@ -64,8 +46,7 @@ Promise.all([
 .then(ready)
 
 function ready(csv){
-
-	d3.select(".all-title").html(currentYear)
+	d3.select(".center-title").html(currentYear)
 
 	let data = csv[0];
 
@@ -96,7 +77,7 @@ function ready(csv){
 	        populist2016:speechCategory,
 	        populist2017:speechCategory,
 	        populist2018:speechCategory,
-	        radius:5.5
+	        radius:5
       };
 
 		let country = data.filter(d => d.country == c)
@@ -116,48 +97,38 @@ function ready(csv){
 		nodes.push(node)
 	})
 
-	simulation.nodes(nodes)
+	
 
-	bubbles = svg.selectAll('circle')
+    simulation
+    .nodes(nodes)
+    .force("r", d3.forceRadial(function(d) { return (5 - categories.indexOf(d['populist' + currentYear])) * 50 }))
+    .restart();
+
+    bubble = svg.selectAll('circle')
 	.data(nodes)
 	.enter()
 	.append('circle')
-	.attr('class', d => 'c' + d.country + ' ' + d['populist' + currentYear] )
+	.attr('class', d => d['populist' + currentYear] )
 	.attr('r', d => d.radius)
-
-
-	simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
-	simulation.force('y', d3.forceY().strength(forceStrength).y(nodePopulismPosY))
-
-	simulation.alpha(1).restart();
 
 	setInterval(d => {
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
-		d3.select(".all-title").html(currentYear)
-		simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
-		simulation.force('y', d3.forceY().strength(forceStrength).y(nodePopulismPosY))
+		
+		simulation.force("r", d3.forceRadial(function(d) { return (5 - categories.indexOf(d['populist' + currentYear])) * 50 }))
+		
+		d3.select(".center-title").html(currentYear)
 		simulation.alpha(1).restart();
 	}, 2000);
 
+
 }
 
-function nodePopulismPosX(d) {
-	d3.select('.c' + d.country).attr('class', 'c' + d.country + ' ' + d['populist' + currentYear])
-  return populistCenters[d['populist' + currentYear]].x;
-}
 
-function nodePopulismPosY(d) {
-	d3.select('.c' + d.country).attr('class', 'c' + d.country + ' ' + d['populist' + currentYear])
-  return populistCenters[d['populist' + currentYear]].y;
-}
 
 function ticked() {
-  bubbles
-  .attr('cx', d => d.x + width / 2)
-  .attr('cy', d => d.y + 100)
-}
-
-function charge(d) {
-    return Math.pow(d.radius, 2.0) * forceStrength;
+  bubble
+  	.attr('class', d => d['populist' + currentYear] )
+      .attr("cx", function(d) { return d.x + width /2; })
+      .attr("cy", function(d) { return d.y + height /2; });
 }
