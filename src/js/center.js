@@ -16,7 +16,7 @@ const categories = ['null', 'NA','Zero', 'Not populist', 'Somewhat populist', 'P
 const mapEl = $(".interactive-wrapper");
 
 let width = mapEl.getBoundingClientRect().width;
-let height = 900;
+let height = 800;
 
 let nodes = [];
 let circle = null;
@@ -100,8 +100,6 @@ function ready(csv){
 
 		nodes.push(node)
 	})
-
-	console.log(nodes)
 
 	annotations = svg.selectAll('text')
 		.data(nodes)

@@ -2,17 +2,23 @@ import * as d3B from 'd3'
 import * as d3Select from 'd3-selection'
 import {event as currentEvent} from 'd3-selection';
 import * as d3Queue from 'd3-queue'
+import * as d3Interpolate from 'd3-interpolate'
 import { $ } from "./util"
-import * as d3Beeswarm from 'd3-beeswarm'
 
-let d3 = Object.assign({}, d3B, d3Select, d3Queue);
+let d3 = Object.assign({}, d3B, d3Select, d3Queue, d3Interpolate);
 const mapEl = $(".interactive-wrapper");
 const dataURL = '<%= path %>/assets/Copy of EDITED Chief Executives MASTER final scores - UNIQUE_40.csv';
+const populationURL = '<%= path %>/assets/Population size for populism things - Sheet1.csv';
 const firstYear = 1998;
 const lastYear = 2018;
 const countries = [];
 let nodes = [];
 let currentYear = firstYear;
+
+
+let i = d3.interpolateLab('#fafafa', '#c70000');
+
+
 
 d3.select(".unique-title").html(currentYear)
 
@@ -53,14 +59,23 @@ let simulation = d3.forceSimulation()
 simulation.stop();
 
 Promise.all([
-	d3.csv(dataURL)
+	d3.csv(dataURL),
+	d3.csv(populationURL)
 	])
 .then(ready)
 
 function ready(csv){
 
 	let data = csv[0];
+	let populations = csv[1];
 	let countryName = null;
+
+	let maxPopulation = d3.max(populations, d => +d.Population2008);
+	let maxRadius = 60;
+
+	let scale = d3.scaleSqrt()
+	.domain([0, maxPopulation])
+	.range([0, 40]);
 
 	d3.map(data, d => {
 		if(countryName != d.country){
@@ -71,11 +86,14 @@ function ready(csv){
 
 	countries.forEach(c => {
 
+		let population = populations.find(p => p.Country == c.country).Population2008;
+
 		let speechCategory = null;
 
 		let node =  {
 			country:c.country.split(' ').join('-'),
 			region:c.region,
+			population:population,
 	        populist1998:speechCategory,
 	        populist1999:speechCategory,
 	        populist2000:speechCategory,
@@ -97,7 +115,7 @@ function ready(csv){
 	        populist2016:speechCategory,
 	        populist2017:speechCategory,
 	        populist2018:speechCategory,
-	        radius:5.5
+	        radius:scale(population)
       };
       	let country = data.filter(d => d.country == c.country)
 		let years = country.map(c => +c.yearbegin)
@@ -126,12 +144,12 @@ function ready(csv){
 	.data(nodes)
 	.enter()
 	.append('circle')
-	.attr('class', d => d.region + ' ' + d.country)
+	//.attr('class', d => d.region + ' ' + d.country)
 	.attr('r', d => d.radius)
 
 
 	annotations = svg.selectAll('text')
-	.data(nodes)
+	.data(nodes.filter(d => d.population > 27000000 && d.population < 40500000))
 	.enter()
 	.append('text')
 	.text(d=>d.country)
@@ -141,6 +159,8 @@ function ready(csv){
 	setInterval(d => {
 		currentYear++
 		if(currentYear > lastYear) currentYear = firstYear;
+
+		//console.log(simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX)))
 		simulation.force('x', d3.forceX().strength(forceStrength).x(nodePopulismPosX))
 		simulation.force('y', d3.forceX().strength(0.2).x(nodePopulismPosX))
 		d3.select(".unique-title").html(currentYear)
@@ -162,9 +182,10 @@ function beesTicked() {
   bees
   .attr('cx', d => d.x + 50)
   .attr('cy', d => d.y + height /2)
+  .attr('fill', d => i(d['populist'+currentYear] / 2))
 
   annotations
-  .attr('x', d => d.x)
+  .attr('x', d => {return d.x})
   .attr('y', d => d.y + height /2)
 }
 

@@ -22,6 +22,12 @@
     }
 }
 
+.interactive-wrapper div{
+    position: relative;
+    float: left;
+    border: 1px solid grey;
+}
+
 .null{fill:lightgrey;}
 .Zero{fill:red}
 .NA{fill:red}
