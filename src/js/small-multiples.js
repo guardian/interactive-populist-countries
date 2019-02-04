@@ -116,10 +116,6 @@ function ready(csv){
 	      .attr("stroke-linejoin", "round")
 	      .attr("stroke-linecap", "round")
 	      .attr("d", line)
-
-
-console.time("[gradient stroke performance]");
-         
 	      
 	})
 

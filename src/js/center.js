@@ -11,7 +11,7 @@ const firstYear = 1998;
 const lastYear = 2018;
 let currentYear = 1998;
 const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela'];
-const categories = ['null', 'NA','Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
+const categories = ['Very Populist','Populist','Somewhat populist','null', 'Not populist','NA','Zero']
 
 const mapEl = $(".interactive-wrapper");
 
