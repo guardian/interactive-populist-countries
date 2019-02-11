@@ -119,6 +119,7 @@ function ready(csv){
       };
       	let country = data.filter(d => d.country == c.country)
 		let years = country.map(c => +c.yearbegin)
+
 		let populism = country.map(c => c.totalaverage)
 		let localPopulism = speechCategory;
 

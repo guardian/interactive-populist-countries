@@ -11,7 +11,7 @@ const firstYear = 1998;
 const lastYear = 2018;
 let currentYear = 1998;
 const countries = ['Argentina','Armenia','Austria','Belarus','Bolivia','Brazil','Bulgaria','Canada','Chile','Colombia','Costa Rica','Croatia','Czech Republic','Dominican Republic','Ecuador','El Salvador','France','Germany','Guatemala','Honduras','Hungary','India','Italy','Latvia','Mexico','Moldova','Netherlands','Nicaragua','Norway','Panama','Paraguay','Peru','Poland','Romania','Russia','Slovakia','Spain','Sweden','Tajikistan','Turkey','UK','Ukraine','United States','Uruguay','Venezuela'];
-const categories = ['Very Populist','Populist','Somewhat populist','null', 'Not populist','NA','Zero']
+const categories = [ 'null','NA','Zero','Not populist','Somewhat populist', 'Populist','Very Populist']
 
 const mapEl = $(".interactive-wrapper");
 
@@ -39,7 +39,7 @@ svg
 .style('stroke', '#dcdcdc')
 
 var simulation = d3.forceSimulation()
-    .force("charge", d3.forceCollide().radius(5))
+    .force("charge", d3.forceCollide().radius(3))
     .on("tick", ticked);
 
 simulation.stop()
@@ -126,7 +126,7 @@ function ready(csv){
 	
  simulation
     .nodes(nodes)
-    .force("r", d3.forceRadial(function(d) { return (categories.length-1 - categories.indexOf(d['populist' + currentYear])) * 50 }))
+    .force("r", d3.forceRadial(function(d) { return (/*categories.length-1 -*/ categories.indexOf(d['populist' + currentYear])) * 50 }))
     .restart();
 
 	setInterval(d => {
@@ -135,8 +135,8 @@ function ready(csv){
 
 		
 		
-		simulation.force("r", d3.forceRadial(d => (categories.length-1 - categories.indexOf(d['populist' + currentYear])) * 50 ))
-		.force("collide", d3.forceCollide().radius(6))
+		simulation.force("r", d3.forceRadial(d => (/*categories.length-1 -*/ categories.indexOf(d['populist' + currentYear])) * 50 ))
+		.force("collide", d3.forceCollide().radius(3))
 		
 		d3.select(".center-title").html(currentYear)
 		simulation.alpha(1).restart();
@@ -150,8 +150,8 @@ function ready(csv){
 function ticked() {
   circle
   .attr('class', d => d.country + ' ' +d['populist' + currentYear] )
-  .attr("x", function(d) { return d.x + width /2; })
-  .attr("y", function(d) { return d.y + height /2; });
+  .attr("x", function(d) { return (d.x + width /2) -4; })
+  .attr("y", function(d) { return (d.y + height /2) -4; });
 
   annotations
   .attr('class', d => {return'text' + d['populist' + currentYear] })
