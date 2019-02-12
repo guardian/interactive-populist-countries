@@ -5,6 +5,13 @@
 //@import "embed";
 // Uncomment for full screen (including immersive article main media)
 //@import "fullscreen";
+
+
+body{
+    background-color: #FBF6EF;
+}
+
+
 .element.element-atom,
 .interactive.interactive-atom{
 	margin-left: 0px !important;
@@ -20,12 +27,15 @@
     @include mq(wide) {
     	margin-left: 60px !important;
     }
+
+    
 }
 
 .interactive-wrapper div{
     position: relative;
     float: left;
-    border: 1px solid grey;
+
+    background-color: #FBF6EF;
 }
 
 .null{fill:lightgrey; opacity:0;}

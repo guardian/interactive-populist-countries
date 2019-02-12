@@ -11,10 +11,6 @@ const dataURL = '<%= path %>/assets/Copy of EDITED Chief Executives MASTER final
 const populationURL = '<%= path %>/assets/population-year.csv';
 const firstYear = 1998;
 const lastYear = 2018;
-let currentYear = firstYear;
-let currentPopulation = 0;
-const countries = [];
-const categories = ['Zero', 'Not populist', 'Somewhat populist', 'Populist', 'Very Populist']
 
 const mapEl = $(".interactive-wrapper");
 
@@ -28,13 +24,13 @@ let canvas = d3.select('.population').append('canvas')
 let context = canvas.node().getContext('2d')
 context.clearRect(0, 0, width, height);
 
-let population = [];
-let totalPopulationByYear =[];
-let totalPopulismByCountry =[];
-let totalPopulismByYear =[];
-let totalPopulationPopulist = 0;
-let totalPopulationNotPopulist = 0;
+let population =[];
+let totalPopulationByYear = [];
+let currentYear = firstYear;
+let currentPopulation = 0;
 
+let currentPopulistCountries = [];
+let currentNotPopulistCountries = [];
 
 // Key variables:
 let nodes = [];
@@ -45,9 +41,6 @@ let outerRadius = 500;        // new nodes within this radius
 let innerRadius = 10;        // new nodes outside this radius, initial nodes within.
 let startCenter = [width/4,height/2];  // new nodes/initial nodes center point
 let endCenter = [width /4 + width /2,height/2];	  // destination center
-let n = 1700;		          // number of initial nodes
-let cycles = 1000;	          // number of ticks before stopping.
-
 
 let simulation = d3.forceSimulation()
 .force("charge", d3.forceManyBody().strength(function(d) { return d.strength; } ))
@@ -65,148 +58,79 @@ Promise.all([
 	])
 .then(ready)
 
-
 function ready(csv){
-
 
 	let populism = csv[0];
 	population = csv[1];
-
-	let countryName = null;
 
 	for (let i = firstYear; i <= lastYear; i++) {
 		totalPopulationByYear[i] = getTotalPopulation(i)
 	}
 
-	d3.map(populism,d => {
-		if(countryName != d.country){
-			countryName = d.country
-			countries.push(countryName)
-		}
-	});
+	let interval = setInterval(d => {
 
+		let currentCountries = populism.filter(p => +p.yearbegin === currentYear);
+	 	     
+	 	let currentPopulist = currentCountries.filter(c => c.speech_category === "Very Populist" || c.speech_category === "Populist" || c.speech_category === "Somewhat populist")
+	 	let currentNotPopulist = currentCountries.filter(c => c.speech_category === "Not populist" || c.speech_category === "Zero" || c.speech_category === "NA")
 
+	 	currentPopulist.map(c=> {
+	 		if(currentNotPopulistCountries.indexOf(c.country) != -1)currentNotPopulistCountries.splice(currentNotPopulistCountries.indexOf(c.country),1)
+	 		if(currentPopulistCountries.indexOf(c.country) == -1)currentPopulistCountries.push(c.country)
+	 	})
+	 	currentNotPopulist.map(c=>{
+	 		if(currentPopulistCountries.indexOf(c.country) != -1)currentPopulistCountries.splice(currentPopulistCountries.indexOf(c.country),1)
+	 		if(currentNotPopulistCountries.indexOf(c.country) == -1)currentNotPopulistCountries.push(c.country)
+	 	})
 
-	countries.forEach(c => {
+	 	let currentPopulistPopulation = 0;
 
-		let speechCategory = false;
+	 	currentPopulistCountries.map(c => {
+	 		currentPopulistPopulation += +getPopulationByCountryAndYear(c, currentYear)
+	 	})
 
-		let results =  {
-	        populist1998:speechCategory,
-	        populist1999:speechCategory,
-	        populist2000:speechCategory,
-	        populist2001:speechCategory,
-	        populist2002:speechCategory,
-	        populist2003:speechCategory,
-	        populist2004:speechCategory,
-	        populist2005:speechCategory,
-	        populist2006:speechCategory,
-	        populist2007:speechCategory,
-	        populist2008:speechCategory,
-	        populist2009:speechCategory,
-	        populist2010:speechCategory,
-	        populist2011:speechCategory,
-	        populist2012:speechCategory,
-	        populist2013:speechCategory,
-	        populist2014:speechCategory,
-	        populist2015:speechCategory,
-	        populist2016:speechCategory,
-	        populist2017:speechCategory,
-	        populist2018:speechCategory,
-      };
+	 	let currentNotPopulistPopulation = 0;
 
-      	let country = populism.filter(d => d.country == c)
-		let years = country.map(c => +c.yearbegin)
+	 	currentNotPopulistCountries.map(c => {
+	 		currentNotPopulistPopulation += +getPopulationByCountryAndYear(c, currentYear)
+	 	})
 
-		let populismCount = country.map(c => c.speech_category)
-		let localPopulism = speechCategory;
-
-		for (var i = firstYear; i <= lastYear; i++) {
-
-			if(years.indexOf(i) != -1){
-
-
-				if(populismCount[years.indexOf(i)] == 'Somewhat populist' || populismCount[years.indexOf(i)] == 'Very Populist' || populismCount[years.indexOf(i)] == 'Populist')
-				{
-					localPopulism = true;
-
-				}
-				else
-				{
-					localPopulism = false
-				}
-				
-			}
-
-			results['populist' + i] = localPopulism
-		}
-
-		totalPopulismByCountry[c] = results
-
-	})
-
-
-	setInterval(d => {
-
-		if(currentYear > lastYear){
-			currentYear = firstYear;
-			nodes.splice(Math.floor(totalPopulationByYear[firstYear] / 1000000), nodes.length);
-			currentPopulation = Math.floor(totalPopulationByYear[firstYear] / 1000000);
-
-			totalPopulationPopulist = 0;
-			totalPopulationNotPopulist = 0;
-		}
+	 	console.log(currentYear)
+	 	console.log(Math.floor(currentPopulistPopulation / 1000000), Math.floor(currentNotPopulistPopulation / 1000000))
+	 	
+	 	console.log('------------------------ ')
 
 		for(let i = currentPopulation; i < Math.floor(totalPopulationByYear[currentYear] / 1000000); i++)
 		{
 			nodes.push(random())
 		}
 
-		countries.map(c =>{
+		nodes.forEach(n => {
 
-
-			//console.log(totalPopulismByCountry[c]['populist' + currentYear])
-
-
-			/*if(getPopulismByCountryAndYear(c, currentYear))
-			{
-				totalPopulationPopulist = getPopulationByCountryAndYear(c, currentYear);
-			}*/
+			n.migrated = false;
 		})
+		
 
-		//totalPopulationNotPopulist = Math.floor(getTotalPopulation(currentYear) / 1000000) - totalPopulationPopulist;
-
-		//console.log(currentYear , '-------------------------<br>' , totalPopulationPopulist, totalPopulationNotPopulist, Math.floor(getTotalPopulation(currentYear) / 1000000))
-
-
-/*		for(let i = 0; i = Math.floor(Math.random() * 100); i++){
-
-			!nodes[i].migrated ? nodes[i].migrated = true : nodes[i].migrated = false;
+		for(let i = 0; i < Math.floor(currentPopulistPopulation / 1000000); i++)
+		{
+			nodes[i].migrated = true;
 		}
-
-
-*/
-/*		populism.map(p => {
-
-			//if(speech.indexOf(p.speech_category) == -1)speech.push( p.speech_category)
-
-
-			if(+p.yearbegin === currentYear){
-
-
-				if(p.speech_category != 'Not populist' && p.speech_category != 'Zero')
-				{
-					console.log(p.country, p.speech_category, getPopulationByCountryAndYear(p.country, currentYear))
-				}
-				//console.log(p.country, p.speech_category, getPopulationByCountryAndYear(p.country, currentYear))
-			}
-		})*/
 
 		simulation.nodes(nodes);
 
 		currentPopulation = Math.floor(totalPopulationByYear[currentYear] / 1000000);
 
 		d3.select('.population-title').html(currentYear)
+
+		if(currentYear == lastYear){
+			
+
+			clearInterval(interval)
+
+			simulation.stop();
+
+			
+		}
 
 		currentYear++
 
@@ -243,14 +167,6 @@ function getPopulationByCountryAndYear(country, year){
 
 }
 
-
-function getPopulismByCountryAndYear(country, year){
-	return totalPopulismByCountry[country]['populist' + year]
-}
-
-
-
-// Create a random node:
 function random(){
 	let angle = Math.random() * Math.PI * 2;
 	let distance = Math.random() * (outerRadius - innerRadius) + innerRadius;
@@ -266,41 +182,13 @@ function random(){
 }
 
 
-
-let tick = 0;
-	
 function ticked() {
-	/*//tick++;
-	
-	//if(tick > cycles) this.stop();
 
-
-
-	
-
-
-
-
-	//nodes.push(random()); // create a node
-	    // update the nodes.
-
-	
-
-	// Select a random node to migrate:
-	let migrating = simulation.find((Math.random() - 0.5) * 50 + startCenter[0], (Math.random() - 0.5) * 50 + startCenter[1], 10);
-	if(migrating) migrating.migrated = true; // if one was chosen.
-
-	//console.log('tick')
-
-	//if(tick > 100) this.stop();
-
-	*/
-	
 	context.clearRect(0,0,width,height);
 	
-	nodes.forEach(function(d) {
+	nodes.forEach(d => {
 		context.beginPath();
-		context.fillStyle = d.migrated ? "steelblue" : "orange";
+		context.fillStyle = d.migrated ? "#7E57BB" : "#dcdcdc";
 		context.arc(d.x,d.y,3,0,Math.PI*2);
 		context.fill();
 	})
