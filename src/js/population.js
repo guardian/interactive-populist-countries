@@ -1,11 +1,9 @@
 
 import * as d3B from 'd3'
 import * as d3Select from 'd3-selection'
-import {event as currentEvent} from 'd3-selection';
-import * as d3Queue from 'd3-queue'
 import { $ } from "./util"
 
-let d3 = Object.assign({}, d3B, d3Select, d3Queue);
+let d3 = Object.assign({}, d3B, d3Select);
 
 const dataURL = '<%= path %>/assets/Copy of EDITED Chief Executives MASTER final scores - ALL_VISUALS_EDITED_UNIQUE.csv';
 const populationURL = '<%= path %>/assets/population-year.csv';
@@ -42,6 +40,17 @@ let innerRadius = 10;        // new nodes outside this radius, initial nodes wit
 let startCenter = [width/4,height/2];  // new nodes/initial nodes center point
 let endCenter = [width /4 + width /2,height/2];	  // destination center
 
+let notPopulistText = d3.select('.population').append('text')
+.style('left','200px' )
+.style('top',startCenter[1] - 10 + 'px'  )
+.attr('class', 'populist-text')
+
+let populistText = d3.select('.population').append('text')
+.style('left',endCenter[0] + 'px' )
+.style('top',endCenter[1] - 10 + 'px'  )
+.attr('class', 'populist-text')
+
+
 let simulation = d3.forceSimulation()
 .force("charge", d3.forceManyBody().strength(function(d) { return d.strength; } ))
 .force("x1",d3.forceX().x(function(d) { return d.migrated ? endCenter[0] : startCenter[0] }).strength(centeringStrength))
@@ -49,6 +58,9 @@ let simulation = d3.forceSimulation()
 .alphaDecay(0)
 .velocityDecay(velocityDecay)
 .on("tick", ticked);
+
+let interpotation = d3.interpolateLab("#dcdcdc", "#7E57BB");
+
 
 simulation.stop();
 
@@ -100,10 +112,15 @@ function ready(csv){
 	 	
 	 	console.log('------------------------ ')
 
+	 	notPopulistText.text(currentNotPopulistPopulation.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+	 	populistText.text(currentPopulistPopulation.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+
 		for(let i = currentPopulation; i < Math.floor(totalPopulationByYear[currentYear] / 1000000); i++)
 		{
 			nodes.push(random())
 		}
+
+		currentPopulation = Math.floor(totalPopulationByYear[currentYear] / 1000000);
 
 		nodes.forEach(n => {
 
@@ -118,7 +135,7 @@ function ready(csv){
 
 		simulation.nodes(nodes);
 
-		currentPopulation = Math.floor(totalPopulationByYear[currentYear] / 1000000);
+		
 
 		d3.select('.population-title').html(currentYear)
 

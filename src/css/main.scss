@@ -70,3 +70,21 @@ h3{
 .textVery.Populist{fill:red;}
 
 
+.populist-text{
+    position:absolute;
+    
+    @include fs-GuardianHeadlineFull(5, true);
+
+    font-weight: 500;
+    color: #333333;
+
+    
+   text-shadow:
+       1px 1px 0 #FFF,
+     -1px -1px 0 #FFF,  
+      1px 1px 0 #FFF,
+      -1px -1px 0 #FFF,
+       1px 1px 0 #FFF;
+}
+
+
